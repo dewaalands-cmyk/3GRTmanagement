@@ -53,6 +53,15 @@ export async function getPackages() {
     }));
   } catch { return []; }
 }
+// Cheap deterministic hash of a string → used as image cache-buster.
+// Changes whenever the stored images change, so the CDN serves fresh images
+// immediately after a save — without needing an updatedAt DB column.
+function hashStr(s: string): string {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+
 export async function getMerchandises() {
   try {
     const rows = await prisma.merchandise.findMany({ orderBy: order });
@@ -64,10 +73,10 @@ export async function getMerchandises() {
           count = Array.isArray(arr) ? arr.length : 0;
         } catch { count = 0; }
       }
+      const v = hashStr(r.mediaUrls ?? "");
       return {
         ...r,
-        // v= cache-buster: changes every save so CDN serves fresh image immediately
-        mediaUrls: Array.from({ length: count }, (_, i) => `/api/merch-img?id=${r.id}&i=${i}&v=${r.updatedAt.getTime()}`),
+        mediaUrls: Array.from({ length: count }, (_, i) => `/api/merch-img?id=${r.id}&i=${i}&v=${v}`),
       };
     });
   } catch { return []; }
