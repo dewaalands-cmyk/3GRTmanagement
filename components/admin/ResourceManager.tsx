@@ -65,11 +65,20 @@ export function ResourceManager({ resourceKey }: { resourceKey: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editing),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        let msg = `Gagal menyimpan (kode ${res.status}).`;
+        if (res.status === 401) msg = "Sesi login habis. Muat ulang halaman lalu login kembali.";
+        else if (res.status === 413) msg = "Foto terlalu besar. Kurangi jumlah/ukuran foto lalu simpan lagi.";
+        else {
+          try { const body = await res.json(); if (body?.error) msg = String(body.error); } catch {}
+        }
+        setError(msg);
+        return;
+      }
       setEditing(null);
       await load();
-    } catch {
-      setError("Gagal menyimpan. Coba lagi.");
+    } catch (err) {
+      setError(`Gagal terhubung ke server: ${err instanceof Error ? err.message : "coba lagi"}`);
     } finally {
       setSaving(false);
     }

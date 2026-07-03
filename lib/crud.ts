@@ -90,7 +90,9 @@ export async function createHandler(resource: string, req: Request) {
     revalidatePath("/", "layout");
     return NextResponse.json(decodeJsonFields(resource, item), { status: 201 });
   } catch (e) {
-    return NextResponse.json({ error: "Gagal menyimpan" }, { status: 400 });
+    const detail = e instanceof Error ? e.message : String(e);
+    console.error(`[crud] create ${resource} failed:`, detail);
+    return NextResponse.json({ error: `Gagal menyimpan: ${detail}` }, { status: 400 });
   }
 }
 
@@ -104,7 +106,9 @@ export async function updateHandler(resource: string, id: string, req: Request) 
     revalidatePath("/", "layout");
     return NextResponse.json(decodeJsonFields(resource, item));
   } catch (e) {
-    return NextResponse.json({ error: "Gagal memperbarui" }, { status: 400 });
+    const detail = e instanceof Error ? e.message : String(e);
+    console.error(`[crud] update ${resource}/${id} failed:`, detail);
+    return NextResponse.json({ error: `Gagal memperbarui: ${detail}` }, { status: 400 });
   }
 }
 
