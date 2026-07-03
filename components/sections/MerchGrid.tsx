@@ -128,8 +128,8 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* Modal box — min-h ensures the left pane always has room to center the image */}
-      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:min-h-[480px] md:flex-row">
+      {/* Modal box — min-h gives the left pane vertical room even when text is short */}
+      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:min-h-[480px] md:flex-row md:items-stretch">
 
         {/* Close button */}
         <button
@@ -140,28 +140,26 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
           <X className="h-5 w-5" />
         </button>
 
-        {/* LEFT — white pane */}
-        <div className="relative shrink-0 overflow-hidden bg-white md:w-[46%] md:rounded-l-2xl">
+        {/*
+          LEFT — white pane.
+          Mobile: aspect-square gives it a fixed square height.
+          Desktop: aspect-auto → no intrinsic height, so flex-stretch makes it fill
+          the full modal height. The image fills the pane and object-contain
+          automatically centers it vertically — no fragile flex tricks.
+        */}
+        <div className="group relative aspect-square w-full shrink-0 overflow-hidden bg-white md:aspect-auto md:w-[46%] md:rounded-l-2xl">
           {item.badge && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
               {item.badge}
             </span>
           )}
-          {/*
-            Mobile: in-flow square gives the pane height.
-            Desktop: hidden — the right pane drives modal height; left pane stretches
-            via default flex-stretch, and the absolute layer centers the image.
-          */}
-          <div className="aspect-square w-full md:hidden" aria-hidden="true" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="group aspect-square w-full">
-              <ImageSlider images={images} name={item.name} />
-            </div>
+          <div className="absolute inset-0">
+            <ImageSlider images={images} name={item.name} />
           </div>
         </div>
 
-        {/* RIGHT — detail pane, scrollable */}
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-7">
+        {/* RIGHT — detail pane, scrollable (min-h-0 lets it scroll inside the flex row) */}
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-7">
           <div>
             <h2 className="font-heading text-2xl font-black uppercase leading-tight tracking-wide text-bone">
               {item.name}
