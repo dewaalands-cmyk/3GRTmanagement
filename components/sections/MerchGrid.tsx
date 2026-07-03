@@ -140,18 +140,16 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
           <X className="h-5 w-5" />
         </button>
 
-        {/* LEFT — white square, self-centered in the flex row */}
-        <div className="relative shrink-0 overflow-hidden bg-white md:w-[46%] md:self-center md:rounded-l-2xl">
+        {/* LEFT — white pane, image square centered vertically */}
+        <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-white md:w-[46%] md:rounded-l-2xl">
           {item.badge && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
               {item.badge}
             </span>
           )}
-          {/* paddingTop:100% creates a square (height = width) */}
-          <div className="group relative" style={{ paddingTop: "100%" }}>
-            <div className="absolute inset-0">
-              <ImageSlider images={images} name={item.name} />
-            </div>
+          {/* aspect-square gives the div real height so flex can center it */}
+          <div className="group aspect-square w-full">
+            <ImageSlider images={images} name={item.name} />
           </div>
         </div>
 
