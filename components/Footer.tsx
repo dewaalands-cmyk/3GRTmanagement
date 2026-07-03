@@ -1,4 +1,4 @@
-import { Instagram, Youtube, MessageCircle, MapPin, Mail } from "lucide-react";
+import { Instagram, Youtube, MessageCircle } from "lucide-react";
 import type { SiteContentData } from "@/lib/content";
 
 const NAV = [
@@ -25,7 +25,7 @@ export function Footer({ content }: { content: SiteContentData }) {
       <div className="h-1.5 bg-gradient-to-r from-crimson via-amber to-crimson" />
 
       <div className="mx-auto w-[92%] max-w-wrap py-16">
-        <div className="grid gap-12 border-b border-ink/10 pb-12 md:grid-cols-[2fr_1fr_1.2fr]">
+        <div className="grid gap-12 border-b border-ink/10 pb-12 md:grid-cols-[2fr_1fr]">
 
           {/* Brand kolom */}
           <div>
@@ -66,41 +66,6 @@ export function Footer({ content }: { content: SiteContentData }) {
                   <span className="cursor-default text-xl font-medium text-ink/70 transition-colors hover:text-crimson">{l.label}</span>
                 </li>
               ))}
-            </ul>
-          </div>
-
-          {/* Kontak */}
-          <div>
-            <h4 className="font-heading text-lg font-bold uppercase tracking-[0.2em] text-crimson">Kontak</h4>
-            <ul className="mt-6 space-y-5">
-              {c.wa && (
-                <li>
-                  {/* WhatsApp: logo saja, nomor tidak ditampilkan */}
-                  <a href={wa} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-                    className="group inline-grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson transition-colors hover:bg-crimson hover:text-white">
-                    <MessageCircle className="h-6 w-6" />
-                  </a>
-                </li>
-              )}
-              {c.email && (
-                <li>
-                  <a href={`mailto:${c.email}`}
-                    className="group flex items-center gap-4 text-xl text-ink/70 transition-colors hover:text-crimson">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson group-hover:bg-crimson group-hover:text-white transition-colors">
-                      <Mail className="h-6 w-6" />
-                    </span>
-                    <span>{c.email}</span>
-                  </a>
-                </li>
-              )}
-              {c.location && (
-                <li className="flex items-center gap-4 text-xl text-ink/70">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson">
-                    <MapPin className="h-6 w-6" />
-                  </span>
-                  <span>{c.location}</span>
-                </li>
-              )}
             </ul>
           </div>
         </div>
