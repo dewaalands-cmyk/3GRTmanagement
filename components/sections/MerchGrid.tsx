@@ -140,19 +140,16 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
           <X className="h-5 w-5" />
         </button>
 
-        {/* LEFT — white image pane, flex-centered */}
-        <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-white md:w-[46%] md:rounded-l-2xl">
+        {/* LEFT — white square, self-centered in the flex row */}
+        <div className="relative shrink-0 overflow-hidden bg-white md:w-[46%] md:self-center md:rounded-l-2xl">
           {item.badge && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
               {item.badge}
             </span>
           )}
-          {/*
-            pt-[100%] creates a square whose height = width.
-            The absolute child fills it, giving ImageSlider a concrete h/w to reference.
-          */}
-          <div className="relative w-full" style={{ paddingTop: "100%" }}>
-            <div className="group absolute inset-0">
+          {/* paddingTop:100% creates a square (height = width) */}
+          <div className="group relative" style={{ paddingTop: "100%" }}>
+            <div className="absolute inset-0">
               <ImageSlider images={images} name={item.name} />
             </div>
           </div>
