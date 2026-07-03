@@ -1,10 +1,14 @@
 import { Instagram, Youtube, MessageCircle } from "lucide-react";
 import type { SiteContentData } from "@/lib/content";
 
-const NAV = [
-  { label: "Layanan" },
-  { label: "Event" },
-  { label: "Kontak" },
+type Section = "beranda" | "layanan" | "event" | "kontak" | "merch";
+
+const NAV: { id: Section; label: string }[] = [
+  { id: "beranda", label: "Beranda" },
+  { id: "layanan", label: "Layanan" },
+  { id: "event", label: "Event" },
+  { id: "kontak", label: "Kontak" },
+  { id: "merch", label: "Merchandise" },
 ];
 
 function TiktokIcon({ className }: { className?: string }) {
@@ -15,7 +19,7 @@ function TiktokIcon({ className }: { className?: string }) {
   );
 }
 
-export function Footer({ content }: { content: SiteContentData }) {
+export function Footer({ content, onNavigate }: { content: SiteContentData; onNavigate: (s: Section) => void }) {
   const c = content.contact;
   const wa = `https://wa.me/${c.wa}`;
 
@@ -62,8 +66,13 @@ export function Footer({ content }: { content: SiteContentData }) {
             <h4 className="font-heading text-lg font-bold uppercase tracking-[0.2em] text-crimson">Navigasi</h4>
             <ul className="mt-6 space-y-5">
               {NAV.map((l) => (
-                <li key={l.label}>
-                  <span className="cursor-default text-xl font-medium text-ink/70 transition-colors hover:text-crimson">{l.label}</span>
+                <li key={l.id}>
+                  <button
+                    onClick={() => { onNavigate(l.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className="text-xl font-medium text-ink/70 transition-colors hover:text-crimson"
+                  >
+                    {l.label}
+                  </button>
                 </li>
               ))}
             </ul>

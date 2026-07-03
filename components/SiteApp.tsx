@@ -349,7 +349,7 @@ export function SiteApp({ content, services, events, testimonials, partners, mer
         <PartnerStrip partners={partners} />
       </main>
 
-      <Footer content={content} />
+      <Footer content={content} onNavigate={navigate} />
     </>
   );
 }
