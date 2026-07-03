@@ -15,80 +15,61 @@ interface MerchItem {
   badge?: string | null;
 }
 
-// ─── Mini slideshow used in both card and modal ────────────────────────────
-function ImageSlider({
-  images,
-  name,
-  contain = false,
-}: {
-  images: string[];
-  name: string;
-  contain?: boolean;
-}) {
+// ─── Reusable slideshow ────────────────────────────────────────────────────
+function ImageSlider({ images, name, compact = false }: { images: string[]; name: string; compact?: boolean }) {
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [errored, setErrored] = useState<Set<number>>(new Set());
 
-  const visibleImages = images.filter((_, i) => !errored.has(i));
-  const activeClamped = Math.min(current, Math.max(0, visibleImages.length - 1));
+  const visible = images.filter((_, i) => !errored.has(i));
+  const clamped = Math.min(current, Math.max(0, visible.length - 1));
 
-  const prev = useCallback(() =>
-    setCurrent((c) => (c - 1 + visibleImages.length) % visibleImages.length),
-    [visibleImages.length]
-  );
-  const next = useCallback(() =>
-    setCurrent((c) => (c + 1) % visibleImages.length),
-    [visibleImages.length]
-  );
+  const prev = useCallback(() => setCurrent((c) => (c - 1 + visible.length) % visible.length), [visible.length]);
+  const next = useCallback(() => setCurrent((c) => (c + 1) % visible.length), [visible.length]);
 
   useEffect(() => {
-    if (!isHovered || visibleImages.length < 2) return;
+    if (!isHovered || visible.length < 2) return;
     const id = setInterval(next, 2500);
     return () => clearInterval(id);
-  }, [isHovered, visibleImages.length, next]);
+  }, [isHovered, visible.length, next]);
 
   useEffect(() => { setCurrent(0); setErrored(new Set()); }, [images.length]);
 
-  if (visibleImages.length === 0) {
+  if (visible.length === 0) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-white">
-        <ShoppingBag className="h-16 w-16 text-gray-200" />
+      <div className="flex h-full w-full items-center justify-center">
+        <ShoppingBag className={compact ? "h-12 w-12 text-gray-200" : "h-20 w-20 text-gray-200"} />
       </div>
     );
   }
 
   return (
     <div
-      className="relative h-full w-full bg-white"
+      className="relative h-full w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {images.map((url, i) => {
         if (errored.has(i)) return null;
-        const visibleIdx = visibleImages.indexOf(url);
-        const isActive = visibleIdx === activeClamped;
+        const vi = visible.indexOf(url);
         return (
           <div
             key={url}
-            style={{
-              position: "absolute", inset: 0,
-              opacity: isActive ? 1 : 0,
-              transition: "opacity 0.45s ease-in-out",
-              zIndex: isActive ? 1 : 0,
-            }}
+            className="absolute inset-0"
+            style={{ opacity: vi === clamped ? 1 : 0, transition: "opacity 0.45s ease-in-out", zIndex: vi === clamped ? 1 : 0 }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={url}
               alt={`${name} ${i + 1}`}
-              className={`h-full w-full ${contain ? "object-contain p-6" : "object-contain p-4"}`}
-              onError={() => setErrored((prev) => new Set(prev).add(i))}
+              className={`h-full w-full object-contain ${compact ? "p-3" : "p-6"}`}
+              onError={() => setErrored((p) => new Set(p).add(i))}
             />
           </div>
         );
       })}
 
-      {visibleImages.length > 1 && (
+      {visible.length > 1 && (
         <>
           <button
             type="button"
@@ -108,21 +89,19 @@ function ImageSlider({
           </button>
 
           <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
-            {visibleImages.map((_, i) => (
+            {visible.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setCurrent(i); }}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeClamped ? "w-4 bg-amber" : "w-1.5 bg-gray-300 hover:bg-gray-400"
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === clamped ? "w-4 bg-amber" : "w-1.5 bg-gray-300 hover:bg-gray-400"}`}
                 aria-label={`Foto ${i + 1}`}
               />
             ))}
           </div>
 
           <span className="absolute right-2 top-2 z-10 rounded-full bg-black/15 px-2 py-0.5 font-heading text-[10px] font-semibold text-gray-700 backdrop-blur-sm">
-            {activeClamped + 1}/{visibleImages.length}
+            {clamped + 1}/{visible.length}
           </span>
         </>
       )}
@@ -146,11 +125,13 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="relative my-4 w-full max-w-3xl overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl">
-        {/* Close */}
+      {/* Modal box — flex row on desktop, column on mobile */}
+      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:flex-row">
+
+        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute right-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
@@ -159,61 +140,63 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
           <X className="h-5 w-5" />
         </button>
 
-        <div className="grid md:grid-cols-[1fr_1fr]">
-          {/* Image pane — white bg, larger */}
-          <div className="relative aspect-square overflow-hidden bg-white md:rounded-l-2xl">
-            {item.badge && (
-              <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
-                {item.badge}
-              </span>
-            )}
-            <div className="group h-full w-full">
-              <ImageSlider images={images} name={item.name} contain />
+        {/* LEFT — white image pane, flex-centered */}
+        <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-white md:w-[46%] md:rounded-l-2xl">
+          {item.badge && (
+            <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
+              {item.badge}
+            </span>
+          )}
+          {/*
+            pt-[100%] creates a square whose height = width.
+            The absolute child fills it, giving ImageSlider a concrete h/w to reference.
+          */}
+          <div className="relative w-full" style={{ paddingTop: "100%" }}>
+            <div className="group absolute inset-0">
+              <ImageSlider images={images} name={item.name} />
             </div>
           </div>
+        </div>
 
-          {/* Detail pane */}
-          <div className="flex flex-col gap-5 p-7">
-            <div>
-              <h2 className="font-heading text-2xl font-black uppercase leading-tight tracking-wide text-bone">
-                {item.name}
-              </h2>
-              {item.price ? (
-                <p className="mt-2 font-heading text-2xl font-extrabold text-amber">{item.price}</p>
-              ) : (
-                <p className="mt-2 font-heading text-base text-muted">Hubungi kami untuk harga</p>
-              )}
-            </div>
-
-            {item.description && (
-              <div className="border-t border-line pt-5">
-                <h3 className="mb-3 flex items-center gap-2 font-heading text-[11px] font-bold uppercase tracking-[0.15em] text-muted">
-                  <Tag className="h-3.5 w-3.5" />
-                  Deskripsi &amp; Spesifikasi
-                </h3>
-                <p className="whitespace-pre-line text-sm leading-relaxed text-bone/80">
-                  {item.description}
-                </p>
-              </div>
+        {/* RIGHT — detail pane, scrollable */}
+        <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-7">
+          <div>
+            <h2 className="font-heading text-2xl font-black uppercase leading-tight tracking-wide text-bone">
+              {item.name}
+            </h2>
+            {item.price ? (
+              <p className="mt-2 font-heading text-2xl font-extrabold text-amber">{item.price}</p>
+            ) : (
+              <p className="mt-2 font-heading text-base text-muted">Hubungi kami untuk harga</p>
             )}
+          </div>
 
-            <div className="mt-auto pt-2">
-              {item.link ? (
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-crimson px-6 py-3.5 font-heading text-sm font-bold uppercase tracking-wide text-white shadow-glow transition-colors hover:bg-crimson-dark"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  Pesan Sekarang
-                </a>
-              ) : (
-                <p className="text-center text-sm text-muted">
-                  Hubungi kami untuk informasi pemesanan
-                </p>
-              )}
+          {item.description && (
+            <div className="border-t border-line pt-5">
+              <h3 className="mb-3 flex items-center gap-2 font-heading text-[11px] font-bold uppercase tracking-[0.15em] text-muted">
+                <Tag className="h-3.5 w-3.5" />
+                Deskripsi &amp; Spesifikasi
+              </h3>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-bone/80">
+                {item.description}
+              </p>
             </div>
+          )}
+
+          <div className="mt-auto pt-4">
+            {item.link ? (
+              <a
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-crimson px-6 py-3.5 font-heading text-sm font-bold uppercase tracking-wide text-white shadow-glow transition-colors hover:bg-crimson-dark"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                Pesan Sekarang
+              </a>
+            ) : (
+              <p className="text-center text-sm text-muted">Hubungi kami untuk informasi pemesanan</p>
+            )}
           </div>
         </div>
       </div>
@@ -221,7 +204,7 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
   );
 }
 
-// ─── Card ──────────────────────────────────────────────────────────────────
+// ─── Product card ──────────────────────────────────────────────────────────
 function MerchCard({ item, onOpen }: { item: MerchItem; onOpen: () => void }) {
   const images = (item.mediaUrls ?? []).filter(Boolean);
 
@@ -234,9 +217,11 @@ function MerchCard({ item, onOpen }: { item: MerchItem; onOpen: () => void }) {
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
       aria-label={`Lihat detail ${item.name}`}
     >
-      {/* Media — white background */}
-      <div className="relative aspect-square overflow-hidden border-b border-line/60 bg-white">
-        <ImageSlider images={images} name={item.name} />
+      {/* Image area — white bg, square, object-contain */}
+      <div className="relative border-b border-line/60 bg-white" style={{ paddingTop: "100%" }}>
+        <div className="absolute inset-0 group">
+          <ImageSlider images={images} name={item.name} compact />
+        </div>
 
         {item.badge && (
           <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
@@ -244,8 +229,8 @@ function MerchCard({ item, onOpen }: { item: MerchItem; onOpen: () => void }) {
           </span>
         )}
 
-        {/* "Lihat detail" hover overlay */}
-        <div className="pointer-events-none absolute inset-0 z-[2] flex items-end justify-center bg-black/0 pb-4 opacity-0 transition-all duration-300 group-hover:bg-black/10 group-hover:opacity-100">
+        {/* "Lihat detail" hover hint */}
+        <div className="pointer-events-none absolute inset-0 z-[2] flex items-end justify-center bg-black/0 pb-3 opacity-0 transition-all duration-300 group-hover:bg-black/8 group-hover:opacity-100">
           <span className="rounded-full bg-black/50 px-4 py-1.5 font-heading text-[11px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
             Lihat Detail
           </span>

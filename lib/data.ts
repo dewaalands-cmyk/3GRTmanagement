@@ -66,8 +66,8 @@ export async function getMerchandises() {
       }
       return {
         ...r,
-        // Dedicated endpoint — avoids generic proxy key encoding/decoding entirely
-        mediaUrls: Array.from({ length: count }, (_, i) => `/api/merch-img?id=${r.id}&i=${i}`),
+        // v= cache-buster: changes every save so CDN serves fresh image immediately
+        mediaUrls: Array.from({ length: count }, (_, i) => `/api/merch-img?id=${r.id}&i=${i}&v=${r.updatedAt.getTime()}`),
       };
     });
   } catch { return []; }
