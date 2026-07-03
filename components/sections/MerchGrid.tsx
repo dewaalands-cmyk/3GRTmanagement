@@ -128,8 +128,12 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* Modal box — min-h gives the left pane vertical room even when text is short */}
-      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:min-h-[480px] md:flex-row md:items-stretch">
+      {/*
+        Modal box — FIXED height on desktop (md:h-[80vh]). A definite height is the
+        key: it lets the left pane use h-full and the right pane scroll, with zero
+        reliance on flex-stretch guesswork.
+      */}
+      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:h-[80vh] md:flex-row">
 
         {/* Close button */}
         <button
@@ -142,12 +146,11 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
 
         {/*
           LEFT — white pane.
-          Mobile: aspect-square gives it a fixed square height.
-          Desktop: aspect-auto → no intrinsic height, so flex-stretch makes it fill
-          the full modal height. The image fills the pane and object-contain
-          automatically centers it vertically — no fragile flex tricks.
+          Mobile: aspect-square gives it a square height.
+          Desktop: md:h-full = full modal height (definite). Image fills the pane
+          and object-contain centers it vertically. No flex-stretch involved.
         */}
-        <div className="group relative aspect-square w-full shrink-0 overflow-hidden bg-white md:aspect-auto md:w-[46%] md:rounded-l-2xl">
+        <div className="group relative aspect-square w-full shrink-0 overflow-hidden bg-white md:aspect-auto md:h-full md:w-[46%] md:rounded-l-2xl">
           {item.badge && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
               {item.badge}
@@ -158,8 +161,8 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
           </div>
         </div>
 
-        {/* RIGHT — detail pane, scrollable (min-h-0 lets it scroll inside the flex row) */}
-        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-7">
+        {/* RIGHT — detail pane, scrollable (md:h-full + overflow so it scrolls inside) */}
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-7 md:h-full">
           <div>
             <h2 className="font-heading text-2xl font-black uppercase leading-tight tracking-wide text-bone">
               {item.name}
