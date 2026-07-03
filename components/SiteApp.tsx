@@ -105,12 +105,14 @@ export function SiteApp({ content, services, events, testimonials, partners, mer
   const c = content.contact;
   const wa = `https://wa.me/${c.wa}`;
 
+  // Hanya tampilkan baris yang datanya diisi di admin.
+  // WhatsApp: tampilkan tanpa nomor (klik untuk chat), sesuai permintaan.
   const contactRows = [
-    { icon: MessageCircle, label: "WhatsApp", value: c.waDisplay, href: wa, color: "text-[#25D366]" },
-    { icon: Mail, label: "Email", value: c.email, href: `mailto:${c.email}`, color: "text-crimson" },
-    { icon: MapPin, label: "Lokasi", value: c.location, color: "text-amber" },
-    { icon: Clock, label: "Venue", value: c.address, color: "text-bone" },
-  ];
+    { icon: MessageCircle, label: "WhatsApp", value: "Klik untuk chat", href: wa, color: "text-[#25D366]", show: !!c.wa },
+    { icon: Mail, label: "Email", value: c.email, href: `mailto:${c.email}`, color: "text-crimson", show: !!c.email },
+    { icon: MapPin, label: "Lokasi", value: c.location, color: "text-amber", show: !!c.location },
+    { icon: Clock, label: "Venue", value: c.address, color: "text-bone", show: !!c.address },
+  ].filter((r) => r.show);
 
   return (
     <>
@@ -291,9 +293,13 @@ export function SiteApp({ content, services, events, testimonials, partners, mer
                       })}
                     </ul>
                     <div className="mt-8 flex gap-3">
-                      <a href={c.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-11 w-11 place-items-center rounded-lg border border-line text-bone/70 transition-colors hover:border-amber hover:text-amber"><Instagram className="h-5 w-5" /></a>
-                      <a href={c.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="grid h-11 w-11 place-items-center rounded-lg border border-line text-bone/70 transition-colors hover:border-amber hover:text-amber"><Youtube className="h-5 w-5" /></a>
-                      <a href={wa} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="grid h-11 w-11 place-items-center rounded-lg border border-line text-bone/70 transition-colors hover:border-amber hover:text-amber"><MessageCircle className="h-5 w-5" /></a>
+                      {[
+                        { href: c.instagram, label: "Instagram", Icon: Instagram },
+                        { href: c.youtube, label: "YouTube", Icon: Youtube },
+                        { href: c.wa ? wa : "", label: "WhatsApp", Icon: MessageCircle },
+                      ].filter(({ href }) => href).map(({ href, label, Icon }) => (
+                        <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="grid h-11 w-11 place-items-center rounded-lg border border-line text-bone/70 transition-colors hover:border-amber hover:text-amber"><Icon className="h-5 w-5" /></a>
+                      ))}
                     </div>
                   </Reveal>
                   <Reveal>

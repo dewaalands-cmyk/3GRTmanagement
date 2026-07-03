@@ -1,4 +1,4 @@
-import { Instagram, Youtube, MessageCircle, MapPin, Mail, Phone } from "lucide-react";
+import { Instagram, Youtube, MessageCircle, MapPin, Mail } from "lucide-react";
 import type { SiteContentData } from "@/lib/content";
 
 const NAV = [
@@ -39,22 +39,21 @@ export function Footer({ content }: { content: SiteContentData }) {
                 </span>
               )}
             </div>
-            <p className="max-w-xs text-xl leading-relaxed text-ink/60">{content.footerTagline}</p>
+            {content.footerTagline && (
+              <p className="max-w-xs text-xl leading-relaxed text-ink/60">{content.footerTagline}</p>
+            )}
             <div className="mt-6 flex gap-2">
               {[
                 { href: c.instagram, label: "Instagram", Icon: Instagram },
                 { href: c.youtube, label: "YouTube", Icon: Youtube },
-                { href: wa, label: "WhatsApp", Icon: MessageCircle },
-              ].map(({ href, label, Icon }) => (
+                { href: c.wa ? wa : "", label: "WhatsApp", Icon: MessageCircle },
+                { href: c.tiktok, label: "TikTok", Icon: TiktokIcon },
+              ].filter(({ href }) => href).map(({ href, label, Icon }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
                   className="grid h-12 w-12 place-items-center rounded-lg border border-ink/15 bg-ink/5 text-ink/60 transition-all duration-200 hover:border-crimson hover:bg-crimson hover:text-white">
                   <Icon className="h-5 w-5" />
                 </a>
               ))}
-              <a href={c.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"
-                className="grid h-12 w-12 place-items-center rounded-lg border border-ink/15 bg-ink/5 text-ink/60 transition-all duration-200 hover:border-crimson hover:bg-crimson hover:text-white">
-                <TiktokIcon className="h-5 w-5" />
-              </a>
             </div>
           </div>
 
@@ -74,30 +73,34 @@ export function Footer({ content }: { content: SiteContentData }) {
           <div>
             <h4 className="font-heading text-lg font-bold uppercase tracking-[0.2em] text-crimson">Kontak</h4>
             <ul className="mt-6 space-y-5">
-              <li>
-                <a href={wa} target="_blank" rel="noopener noreferrer"
-                  className="group flex items-center gap-4 text-xl text-ink/70 transition-colors hover:text-crimson">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson group-hover:bg-crimson group-hover:text-white transition-colors">
-                    <Phone className="h-6 w-6" />
+              {c.wa && (
+                <li>
+                  {/* WhatsApp: logo saja, nomor tidak ditampilkan */}
+                  <a href={wa} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
+                    className="group inline-grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson transition-colors hover:bg-crimson hover:text-white">
+                    <MessageCircle className="h-6 w-6" />
+                  </a>
+                </li>
+              )}
+              {c.email && (
+                <li>
+                  <a href={`mailto:${c.email}`}
+                    className="group flex items-center gap-4 text-xl text-ink/70 transition-colors hover:text-crimson">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson group-hover:bg-crimson group-hover:text-white transition-colors">
+                      <Mail className="h-6 w-6" />
+                    </span>
+                    <span>{c.email}</span>
+                  </a>
+                </li>
+              )}
+              {c.location && (
+                <li className="flex items-center gap-4 text-xl text-ink/70">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson">
+                    <MapPin className="h-6 w-6" />
                   </span>
-                  <span>{c.waDisplay}</span>
-                </a>
-              </li>
-              <li>
-                <a href={`mailto:${c.email}`}
-                  className="group flex items-center gap-4 text-xl text-ink/70 transition-colors hover:text-crimson">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson group-hover:bg-crimson group-hover:text-white transition-colors">
-                    <Mail className="h-6 w-6" />
-                  </span>
-                  <span>{c.email}</span>
-                </a>
-              </li>
-              <li className="flex items-center gap-4 text-xl text-ink/70">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-crimson/10 text-crimson">
-                  <MapPin className="h-6 w-6" />
-                </span>
-                <span>{c.location}</span>
-              </li>
+                  <span>{c.location}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
