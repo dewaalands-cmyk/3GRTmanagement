@@ -128,8 +128,8 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* Modal box — flex row on desktop, column on mobile */}
-      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:flex-row">
+      {/* Modal box — min-h ensures the left pane always has room to center the image */}
+      <div className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-ink-2 shadow-2xl md:min-h-[480px] md:flex-row">
 
         {/* Close button */}
         <button
@@ -140,16 +140,23 @@ function MerchModal({ item, onClose }: { item: MerchItem; onClose: () => void })
           <X className="h-5 w-5" />
         </button>
 
-        {/* LEFT — white pane, image square centered vertically */}
-        <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-white md:w-[46%] md:rounded-l-2xl">
+        {/* LEFT — white pane */}
+        <div className="relative shrink-0 overflow-hidden bg-white md:w-[46%] md:rounded-l-2xl">
           {item.badge && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-crimson px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-widest text-white shadow">
               {item.badge}
             </span>
           )}
-          {/* aspect-square gives the div real height so flex can center it */}
-          <div className="group aspect-square w-full">
-            <ImageSlider images={images} name={item.name} />
+          {/*
+            Mobile: in-flow square gives the pane height.
+            Desktop: hidden — the right pane drives modal height; left pane stretches
+            via default flex-stretch, and the absolute layer centers the image.
+          */}
+          <div className="aspect-square w-full md:hidden" aria-hidden="true" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="group aspect-square w-full">
+              <ImageSlider images={images} name={item.name} />
+            </div>
           </div>
         </div>
 
